@@ -4,6 +4,7 @@ from gbahack.resource import ResourceManager
 
 import json
 import os
+import glob
 from array import array
 
 class NoMetaDataException(Exception):
@@ -63,7 +64,11 @@ class ROM(RawFile):
     def __init__(self, filename, metadata=None):
         RawFile.__init__(self, filename)
         self.filename = filename
-    
+        self.RomHeader = {
+            "headerCode": self.readBytes(0xAC, 4)[1].decode('utf-8'),
+            "headerName": self.readBytes(0xA0, 12)[1].decode('utf-8'),
+            "headerMaker": self.readBytes(0xB0, 2)[1].decode('utf-8')
+        }
         self.metadata = {}
         if metadata != None:
             self.metadata = metadata
@@ -77,8 +82,15 @@ class ROM(RawFile):
         self.metadata = {}
     
         #try to find a metadata rom definition
+        
+        romsPath = os.getcwd().split('\\')[-1]+"/roms/"
+        shortName = self.RomHeader["headerName"].split(" ")[1].lower()
+        metaFiles = glob.glob(romsPath+shortName+"*.metadata") #we do this because shortName != filename
+        
         metafile = None
-        if os.path.isfile(self.filename+".metadata"):
+        if len(metaFiles)>0:
+             metafile = metaFiles[0]
+        elif os.path.isfile(self.filename+".metadata"):
             metafile = self.filename+".metadata"
         elif os.path.isfile(os.path.splitext(self.filename)[0]+".metadata"):
             metafile = os.path.splitext(self.filename)[0]+".metadata"
