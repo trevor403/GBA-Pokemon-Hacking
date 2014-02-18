@@ -1,4 +1,3 @@
-
 from gbahack.gbabin.bytes import ByteArrayReader
 from gbahack.resource import ResourceManager
 
@@ -88,7 +87,7 @@ class ROM(RawFile):
         metaFiles = glob.glob(romsPath+shortName+"*.metadata") #we do this because shortName != filename
         
         metafile = None
-        if len(metaFiles)>0:
+        if (len(metaFiles)==1):
              metafile = metaFiles[0]
         elif os.path.isfile(self.filename+".metadata"):
             metafile = self.filename+".metadata"
